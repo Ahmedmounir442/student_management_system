@@ -45,3 +45,30 @@ let authenticateStudent (id: int) (inputPassword: string): bool =
         currentStudentID <- Some student.ID
         true
     | None -> false
+
+
+
+
+// --- Admin-Only Operations ---
+let adminAddStudent (id: int) (name: string) (grades: float list) (password: string): unit =
+    if currentUserRole = Some Admin then
+        studentDatabase <- { ID = id; Name = name; Grades = grades; Password = password } :: studentDatabase
+        MessageBox.Show("Student added successfully") |> ignore
+    else
+        MessageBox.Show("Access denied: Admin privileges required") |> ignore
+
+let adminEditStudent (id: int) (newName: string) (newGrades: float list) (newPassword: string): unit =
+    if currentUserRole = Some Admin then
+        studentDatabase <- studentDatabase |> List.map (fun s -> if s.ID = id then { s with Name = newName; Grades = newGrades; Password = newPassword } else s)
+        MessageBox.Show("Student edited successfully") |> ignore
+    else
+        MessageBox.Show("Access denied: Admin privileges required") |> ignore
+
+let adminRemoveStudent (id: int): unit =
+    if currentUserRole = Some Admin then
+        studentDatabase <- studentDatabase |> List.filter (fun s -> s.ID <> id)
+        MessageBox.Show("Student removed successfully") |> ignore
+    else
+        MessageBox.Show("Access denied: Admin privileges required") |> ignore
+
+
