@@ -1,0 +1,47 @@
+open System
+open System.Windows.Forms
+open System.Drawing
+
+// --- Student Type Definition ---
+type Student = {
+    ID: int
+    Name: string
+    Grades: float list
+    Password: string
+}
+
+// --- Statistics Type Definition ---
+type Statistics = {
+    AvgGrade: float
+    HighestGrade: float option
+    LowestGrade: float option
+    PassRate: float
+}
+
+// --- User Role Definition ---
+type UserRole = 
+    | Admin
+    | Viewer
+
+// --- Database and Admin Password ---
+let mutable studentDatabase: Student list = []
+let adminPassword = "admin123"
+
+// --- Authentication and Role Assignment ---
+let mutable currentUserRole: UserRole option = None
+let mutable currentStudentID: int option = None
+
+let authenticateAdmin (inputPassword: string): bool =
+    if inputPassword = adminPassword then
+        currentUserRole <- Some Admin
+        true
+    else
+        false
+
+let authenticateStudent (id: int) (inputPassword: string): bool =
+    match studentDatabase |> List.tryFind (fun s -> s.ID = id && s.Password = inputPassword) with
+    | Some student -> 
+        currentUserRole <- Some Viewer
+        currentStudentID <- Some student.ID
+        true
+    | None -> false
