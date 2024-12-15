@@ -72,3 +72,19 @@ let adminRemoveStudent (id: int): unit =
         MessageBox.Show("Access denied: Admin privileges required") |> ignore
 
 
+
+
+// --- Viewer Operations ---
+let viewerViewStudentData (): unit =
+    if currentUserRole = Some Viewer then
+        match currentStudentID with
+        | Some id -> 
+            match studentDatabase |> List.tryFind (fun s -> s.ID = id) with
+            | Some student -> 
+                let grades = String.Join(", ", student.Grades |> List.map string)
+                let message = sprintf "ID: %d\nName: %s\nGrades: [%s]" student.ID student.Name grades
+                MessageBox.Show(message, "Your Data") |> ignore
+            | None -> MessageBox.Show("Student data not found") |> ignore
+        | None -> MessageBox.Show("No student logged in") |> ignore
+    else
+        MessageBox.Show("Access denied: Viewer privileges required") |> ignore
