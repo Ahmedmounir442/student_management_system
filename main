@@ -115,3 +115,71 @@ let calculateStatistics (students: Student list): Statistics =
         LowestGrade = lowestGrade
         PassRate = passRate
     }
+
+
+
+
+// --- Admin Form ---
+type AdminForm() as this =
+    inherit Form(Text = "Admin Dashboard", Size = Size(800, 600))
+
+    // UI Components
+    let addButton = new Button(Text = "Add Student", Location = Point(10, 10))
+    let editButton = new Button(Text = "Edit Student", Location = Point(130, 10))
+    let removeButton = new Button(Text = "Remove Student", Location = Point(250, 10))
+    let viewStatsButton = new Button(Text = "View Stats", Location = Point(370, 10))
+    let studentsListBox = new ListBox(Location = Point(10, 50), Size = Size(760, 500))
+
+    do
+        // Add UI components to form
+        this.Controls.AddRange([| addButton; editButton; removeButton; viewStatsButton; studentsListBox |])
+
+        // Event Handlers
+        addButton.Click.Add(fun _ -> 
+            let idInput = Microsoft.VisualBasic.Interaction.InputBox("Enter Student ID:", "Add Student", "")
+            let name = Microsoft.VisualBasic.Interaction.InputBox("Enter Student Name:", "Add Student", "")
+            let gradesInput = Microsoft.VisualBasic.Interaction.InputBox("Enter Grades (comma-separated):", "Add Student", "")
+            let password = Microsoft.VisualBasic.Interaction.InputBox("Enter Student Password:", "Add Student", "")
+            match Int32.TryParse(idInput), gradesInput.Split(',') |> Array.map (fun g -> Double.TryParse(g.Trim())) |> Array.toList |> List.partition fst with
+            | (true, id), (parsedGrades, []) -> 
+                let grades = parsedGrades |> List.map snd
+                adminAddStudent id name grades password
+                studentsListBox.Items.Clear()
+                studentDatabase |> List.iter (fun s -> studentsListBox.Items.Add(sprintf "ID: %d, Name: %s" s.ID s.Name) |> ignore)
+            | _ -> MessageBox.Show("Invalid input") |> ignore
+        )
+
+        editButton.Click.Add(fun _ -> 
+            let idInput = Microsoft.VisualBasic.Interaction.InputBox("Enter Student ID:", "Edit Student", "")
+            let newName = Microsoft.VisualBasic.Interaction.InputBox("Enter New Name:", "Edit Student", "")
+            let newGradesInput = Microsoft.VisualBasic.Interaction.InputBox("Enter New Grades (comma-separated):", "Edit Student", "")
+            let newPassword = Microsoft.VisualBasic.Interaction.InputBox("Enter New Password:", "Edit Student", "")
+            match Int32.TryParse(idInput), newGradesInput.Split(',') |> Array.map (fun g -> Double.TryParse(g.Trim())) |> Array.toList |> List.partition fst with
+            | (true, id), (parsedGrades, []) -> 
+                let newGrades = parsedGrades |> List.map snd
+                adminEditStudent id newName newGrades newPassword
+                studentsListBox.Items.Clear()
+                studentDatabase |> List.iter (fun s -> studentsListBox.Items.Add(sprintf "ID: %d, Name: %s" s.ID s.Name) |> ignore)
+            | _ -> MessageBox.Show("Invalid input") |> ignore
+        )
+
+        removeButton.Click.Add(fun _ -> 
+            let idInput = Microsoft.VisualBasic.Interaction.InputBox("Enter Student ID:", "Remove Student", "")
+            match Int32.TryParse(idInput) with
+            | true, id -> 
+                adminRemoveStudent id
+                studentsListBox.Items.Clear()
+                studentDatabase |> List.iter (fun s -> studentsListBox.Items.Add(sprintf "ID: %d, Name: %s" s.ID s.Name) |> ignore)
+            | _ -> MessageBox.Show("Invalid ID format") |> ignore
+        )
+
+        viewStatsButton.Click.Add(fun _ -> 
+            let stats = calculateStatistics studentDatabase
+            let message =
+                sprintf "Average Grade: %f\n%s%sPass Rate: %f%%" 
+                    stats.AvgGrade
+                    (match stats.HighestGrade with | Some hg -> sprintf "Highest Grade: %f\n" hg | None -> "Highest Grade: N/A\n")
+                    (match stats.LowestGrade with | Some lg -> sprintf "Lowest Grade: %f\n" lg | None -> "Lowest Grade: N/A\n")
+                    stats.PassRate
+            MessageBox.Show(message, "Class Statistics") |> ignore
+        )
