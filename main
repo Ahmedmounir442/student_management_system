@@ -183,3 +183,21 @@ type AdminForm() as this =
                     stats.PassRate
             MessageBox.Show(message, "Class Statistics") |> ignore
         )
+
+
+// --- Student Form ---
+type StudentForm() as this =
+    inherit Form(Text = "Student Dashboard", Size = Size(400, 300))
+
+    // UI Components
+    let viewDataButton = new Button(Text = "View Your Data", Location = Point(10, 10), Size = Size(200, 40))
+
+    do
+        // Add UI components to form
+        this.Controls.Add(viewDataButton)
+
+        // Event Handlers
+        viewDataButton.Click.Add(fun _ -> viewerViewStudentData())
+
+
+
