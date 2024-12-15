@@ -88,3 +88,30 @@ let viewerViewStudentData (): unit =
         | None -> MessageBox.Show("No student logged in") |> ignore
     else
         MessageBox.Show("Access denied: Viewer privileges required") |> ignore
+
+
+
+// --- Statistics Calculation ---
+let calculateAverage (grades: float list): float =
+    if grades.Length = 0 then 0.0
+    else grades |> List.average
+
+let calculateStatistics (students: Student list): Statistics =
+    let allGrades = students |> List.collect (fun s -> s.Grades)
+    let avgGrade = if allGrades.Length = 0 then 0.0 else allGrades |> List.average
+    let highestGrade = if allGrades.Length = 0 then None else Some(allGrades |> List.max)
+    let lowestGrade = if allGrades.Length = 0 then None else Some(allGrades |> List.min)
+    let passRate = 
+        if allGrades.Length = 0 then 0.0
+        else
+            allGrades 
+            |> List.filter (fun g -> g >= 50.0) 
+            |> List.length 
+            |> float 
+            |> fun p -> (p / float allGrades.Length) * 100.0
+    {
+        AvgGrade = avgGrade
+        HighestGrade = highestGrade
+        LowestGrade = lowestGrade
+        PassRate = passRate
+    }
