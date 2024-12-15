@@ -200,4 +200,42 @@ type StudentForm() as this =
         viewDataButton.Click.Add(fun _ -> viewerViewStudentData())
 
 
+// --- Main Form (Login Form) ---
+let mainForm = new Form(Text = "Student Grades Management System", Size = Size(800, 600))
+
+// UI Components
+let loginAsAdminButton = new Button(Text = "Login as Admin", Location = Point(10, 10))
+let loginAsViewerButton = new Button(Text = "Login as Student", Location = Point(130, 10))
+
+// Add UI components to form
+mainForm.Controls.AddRange([| loginAsAdminButton; loginAsViewerButton |])
+
+// Event Handlers
+loginAsAdminButton.Click.Add(fun _ -> 
+    let password = Microsoft.VisualBasic.Interaction.InputBox("Enter Admin Password:", "Admin Login", "")
+    if authenticateAdmin password then
+        MessageBox.Show("Logged in as Admin") |> ignore
+        let adminForm = new AdminForm()
+        adminForm.Show()
+    else
+        MessageBox.Show("Invalid password") |> ignore
+)
+
+loginAsViewerButton.Click.Add(fun _ -> 
+    let idInput = Microsoft.VisualBasic.Interaction.InputBox("Enter Student ID:", "Student Login", "")
+    let password = Microsoft.VisualBasic.Interaction.InputBox("Enter Your Password:", "Student Login", "")
+    match Int32.TryParse(idInput) with
+    | true, id -> 
+        if authenticateStudent id password then
+            MessageBox.Show("Logged in as Student") |> ignore
+            let studentForm = new StudentForm()
+            studentForm.Show()
+        else
+            MessageBox.Show("Invalid ID or Password") |> ignore
+    | _ -> MessageBox.Show("Invalid ID format") |> ignore
+)
+
+// Run the application
+Application.Run(mainForm)
+
 
