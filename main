@@ -69,7 +69,7 @@ let adminRemoveStudent (id: int): unit =
         studentDatabase <- studentDatabase |> List.filter (fun s -> s.ID <> id)
         MessageBox.Show("Student removed successfully") |> ignore
     else
-        MessageBox.Show("Access denied: Admin privileges required") |> ignore
+        MessageBox.Show("Access denied: Admin privileges required") |> ignore
 
 
 
@@ -87,7 +87,7 @@ let viewerViewStudentData (): unit =
             | None -> MessageBox.Show("Student data not found") |> ignore
         | None -> MessageBox.Show("No student logged in") |> ignore
     else
-        MessageBox.Show("Access denied: Viewer privileges required") |> ignore
+        MessageBox.Show("Access denied: Viewer privileges required") |> ignore
 
 
 
